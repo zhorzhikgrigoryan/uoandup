@@ -17,6 +17,12 @@
     if (nav.classList.contains('is-open') && !e.target.closest('.site-header')) setMenu(false);
   });
 
+  /* ---------- sticky header: add a shadow once the page scrolls ---------- */
+  const header = $('.site-header');
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
   /* ---------- countdown ---------- */
   const cd = $('[data-countdown]');
   const deadline = new Date(cd.dataset.countdown).getTime();
