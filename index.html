@@ -63,9 +63,6 @@
     <div class="hero__visual">
       <div class="brand-card" aria-hidden="true">
         <img class="brand-card__logo" src="assets/logo-ink.svg" alt="" width="165" height="200">
-        <img class="brand-card__circle" src="assets/shape-circle.svg" alt="" width="90" height="90">
-        <img class="brand-card__half" src="assets/shape-half-circle.svg" alt="" width="114" height="57">
-        <span class="brand-card__pill"></span>
       </div>
       <div class="countdown" role="timer" aria-live="off">
         <p class="countdown__label">Մինչև հայտերի ավարտը</p>
@@ -111,6 +108,42 @@
       <div class="box fact bg-orange"><span class="fact__num">1,000,000</span><span class="fact__label">֏ գլխավոր մրցանակ</span></div>
     </div>
   </div>
+</section>
+
+<!-- ============ SONG PLAYER ============ -->
+<section class="player" id="song" aria-labelledby="song-title">
+  <div class="container">
+    <div class="player__head">
+      <div class="heading">
+        <p class="bracket player__bracket">[ Լսիր ]</p>
+        <h2 class="h2" id="song-title">Մրցույթի երգը</h2>
+        <p class="lead">Սեղմի՛ր վինիլի վրա կամ մոտեցրու մկնիկը, և ասեղը կսկսի նվագել։</p>
+      </div>
+      <span class="sticker sticker--lime player__sticker">UP&amp;UP · Official track</span>
+    </div>
+
+    <div class="player-card" data-player>
+      <div class="deck" role="button" tabindex="0" aria-label="Նվագել երգը" data-toggle>
+        <div class="vinyl" aria-hidden="true"><span class="vinyl__label">UP<br>&amp;UP</span></div>
+        <div class="tonearm" aria-hidden="true">
+          <span class="tonearm__arm"></span><span class="tonearm__head"></span><span class="tonearm__pivot"></span>
+        </div>
+      </div>
+      <div class="player-card__info">
+        <p class="player-card__kicker">Ameria student × Visa · UP&amp;UP</p>
+        <h3 class="player-card__title" data-track-title>[Երգի անունը]</h3>
+        <p class="player-card__artist" data-track-artist>[Կատարող]</p>
+        <div class="progress" data-progress role="slider" tabindex="0" aria-label="Երգի ընթացքը" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="progress__bar"></span></div>
+        <div class="player-card__time"><span data-current>0:00</span><span data-duration>0:00</span></div>
+        <div class="player-card__controls">
+          <button class="play-btn" type="button" data-toggle aria-label="Նվագել"><span class="play-btn__icon" aria-hidden="true"></span></button>
+          <span class="player-card__hint" data-hint>Լսել երգը</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Placeholder track: replace assets/audio/placeholder-song.mp3 (and the title/artist above) with the real song -->
+  <audio id="song-audio" preload="metadata" src="assets/audio/placeholder-song.mp3"></audio>
 </section>
 
 <!-- ============ WHO CAN PARTICIPATE ============ -->
@@ -497,6 +530,19 @@
 </section>
 
 </main>
+
+<!-- ============ MINI PLAYER (sticky bottom, appears after scrolling past the song section) ============ -->
+<div class="mini-player" data-mini aria-label="Մրցույթի երգը" role="region">
+  <div class="vinyl vinyl--mini" aria-hidden="true"><span class="vinyl__label"></span></div>
+  <div class="mini-player__track">
+    <p class="mini-player__title" data-track-title>[Երգի անունը]</p>
+    <p class="mini-player__artist" data-track-artist>[Կատարող]</p>
+  </div>
+  <div class="progress progress--mini" data-progress aria-hidden="true"><span class="progress__bar"></span></div>
+  <span class="mini-player__time"><span data-current>0:00</span> / <span data-duration>0:00</span></span>
+  <button class="play-btn play-btn--sm" type="button" data-toggle aria-label="Նվագել"><span class="play-btn__icon" aria-hidden="true"></span></button>
+  <button class="mini-player__close" type="button" data-mini-close aria-label="Փակել">✕</button>
+</div>
 
 <!-- ============ FOOTER ============ -->
 <footer class="site-footer">
