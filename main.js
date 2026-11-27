@@ -17,6 +17,94 @@
     if (nav.classList.contains('is-open') && !e.target.closest('.site-header')) setMenu(false);
   });
 
+  /* ---------- sticky header: add a shadow once the page scrolls ---------- */
+  const header = $('.site-header');
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- song player: vinyl + tonearm, sticky mini player ---------- */
+  (() => {
+    const audio = $('#song-audio');
+    const card = $('[data-player]');
+    const mini = $('[data-mini]');
+    const section = $('#song');
+    if (!audio || !card || !mini) return;
+    const deck = $('.deck', card);
+    const hint = $('[data-hint]', card);
+    const surfaces = [card, mini];
+    let dismissed = false;
+    let pastSection = false;
+    const fmt = (t) => (isFinite(t) ? `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}` : '0:00');
+
+    const setPlaying = (on) => {
+      surfaces.forEach((el) => el.classList.toggle('is-playing', on));
+      $$('[data-toggle]').forEach((b) => b.setAttribute('aria-label', on ? 'Դադար' : 'Նվագել'));
+      hint.textContent = on ? 'Նվագում է…' : 'Լսել երգը';
+      if (on) card.classList.add('is-armed');
+    };
+    const updateMini = () => {
+      const show = pastSection && !dismissed;
+      mini.classList.toggle('is-visible', show);
+      document.body.classList.toggle('has-mini', show);
+    };
+    const play = () => audio.play().then(() => { dismissed = false; updateMini(); }).catch(() => {
+      // Autoplay blocked (no click on the page yet): keep the arm on the record and ask for a click.
+      card.classList.add('is-armed');
+      hint.textContent = 'Սեղմի՛ր՝ նվագելու համար';
+    });
+    const pause = () => { audio.pause(); card.classList.toggle('is-armed', false); };
+    const toggle = () => (audio.paused ? play() : pause());
+
+    $$('[data-toggle]').forEach((el) => el.addEventListener('click', toggle));
+    deck.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+
+    // Hover: swing the tonearm onto the record and start playing.
+    if (window.matchMedia('(hover: hover)').matches) {
+      deck.addEventListener('mouseenter', () => { card.classList.add('is-armed'); if (audio.paused) play(); });
+      deck.addEventListener('mouseleave', () => {
+        if (audio.paused) { card.classList.toggle('is-armed', false); hint.textContent = 'Լսել երգը'; }
+      });
+    }
+
+    audio.addEventListener('play', () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => { setPlaying(false); card.classList.toggle('is-armed', false); });
+    const sync = () => {
+      const pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      $$('.progress__bar').forEach((b) => { b.style.width = pct + '%'; });
+      $$('[data-current]').forEach((el) => { el.textContent = fmt(audio.currentTime); });
+      $$('[data-progress][role="slider"]').forEach((el) => el.setAttribute('aria-valuenow', String(Math.round(pct))));
+    };
+    audio.addEventListener('timeupdate', sync);
+    audio.addEventListener('loadedmetadata', () => {
+      $$('[data-duration]').forEach((el) => { el.textContent = fmt(audio.duration); });
+      sync();
+    });
+    if (audio.readyState >= 1) audio.dispatchEvent(new Event('loadedmetadata'));
+
+    // Seek by clicking / arrow keys on a progress bar.
+    $$('[data-progress]').forEach((bar) => {
+      bar.addEventListener('click', (e) => {
+        if (!audio.duration) return;
+        const r = bar.getBoundingClientRect();
+        audio.currentTime = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1) * audio.duration;
+      });
+      bar.addEventListener('keydown', (e) => {
+        if (!audio.duration) return;
+        if (e.key === 'ArrowRight') audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+        if (e.key === 'ArrowLeft') audio.currentTime = Math.max(0, audio.currentTime - 5);
+      });
+    });
+
+    // Mini player: shows once the song section has scrolled up out of view.
+    new IntersectionObserver(([entry]) => {
+      pastSection = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+      updateMini();
+    }).observe(section);
+    $('[data-mini-close]', mini).addEventListener('click', () => { dismissed = true; pause(); updateMini(); });
+  })();
+
   /* ---------- countdown ---------- */
   const cd = $('[data-countdown]');
   const deadline = new Date(cd.dataset.countdown).getTime();
